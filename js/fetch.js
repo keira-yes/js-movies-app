@@ -4,7 +4,46 @@ const searchForm = document.getElementById('search-form'),
 
 // Show full info of each item
 function showInfo() {
-  console.log(this.dataset.type);
+  let url = '';
+
+  if (this.dataset.type === 'movie') {
+    url = 'https://api.themoviedb.org/3/movie/' + this.dataset.id + '?api_key=0e66e3cd5d8c014d6e406d8aba055a88&language=ru-RU';
+  } else if (this.dataset.type === 'tv') {
+    url = 'https://api.themoviedb.org/3/tv/' + this.dataset.id + '?api_key=0e66e3cd5d8c014d6e406d8aba055a88&language=ru-RU';
+  } else {
+    movies.innerHTML = '<h2 class="text-danger">Произошла ошибка. Повторите позже</h2>';
+  }
+
+  fetch(url)
+    .then(response => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(response.status));
+      }
+      return response.json();
+    })
+    .then(output => {
+      console.log(output);
+      movies.innerHTML = `
+      <div class="col-4">
+        <img src="${img_url}${output.poster_path}" alt="${output.name || output.title}">
+        ${(output.homepage) ? `<p><a href="${output.homepage}" target="_blank">Официальная страница</a></p>` : ''}
+        ${(output.imdb_id) ? `<p><a href="https://imdb.com/title/${output.imdb_id}" target="_blank">Сcылка на imdb.com</a></p>` : ''}
+      </div>
+      <div class="col-8">
+        <h3>${output.name || output.title}</h3>
+        <p>Рейтинг: ${output.vote_average}</p>
+        <p>Статус: ${output.status}</p>
+        <p>Премьера: ${output.release_date || output.first_air_date}</p>
+        ${(output.last_episode_to_air) ? `<p>Вышло сезонов: ${output.number_of_seasons}, серий: ${output.number_of_episodes}</p>` : ''}
+        <p>${output.overview}</p>
+        <p>Жанр: ${output.genres.map(item => item.name)}</p>
+      </div>      
+      `;
+    })
+    .catch(reason => {
+      movies.innerText = 'Что-то пошло не так...';
+      console.error('error', reason);
+    });
 }
 
 // Add click event to items
@@ -43,7 +82,6 @@ function searchApi(e) {
       }
 
       output.results.forEach(item => {
-        console.log(item);
         const name = item.name || item.title,
           date = item.first_air_date || item.release_date || '',
           img = item.backdrop_path ? img_url + (item.backdrop_path || item.profile_path) : 'img/no_image.png';
@@ -81,6 +119,7 @@ searchForm.addEventListener('submit', searchApi);
 
 // Show popular items
 document.addEventListener('DOMContentLoaded', () => {
+  movies.innerHTML = '<div class="loader"></div>';
   fetch('https://api.themoviedb.org/3/trending/all/day?api_key=0e66e3cd5d8c014d6e406d8aba055a88&language=ru-RU')
     .then(response => {
       if (response.status !== 200) {
@@ -92,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
       let inner = '<h2 class="text-info"></h2>';
 
       output.results.forEach(item => {
-        console.log(item);
         const name = item.name || item.title,
           date = item.first_air_date || item.release_date || '',
           img = item.backdrop_path ? img_url + (item.backdrop_path || item.profile_path) : 'img/no_image.png';
