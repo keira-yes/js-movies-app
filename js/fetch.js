@@ -5,8 +5,12 @@ const searchForm = document.getElementById('search-form'),
 // Search request on fetch
 function searchApi(e) {
   e.preventDefault();
-  const searchText = document.getElementById('searchText').value,
-    url = 'https://api.themoviedb.org/3/search/multi?api_key=0e66e3cd5d8c014d6e406d8aba055a88&language=ru-RU&query=' + searchText;
+  const searchText = document.getElementById('searchText').value;
+  if (searchText.trim().length === 0) {
+    movies.innerHTML = '<h3 class="danger-text">Поле поиска не может быть пустым!</h3>';
+    return;
+  }
+   const url = 'https://api.themoviedb.org/3/search/multi?api_key=0e66e3cd5d8c014d6e406d8aba055a88&language=ru-RU&query=' + searchText;
 
   movies.innerHTML = '<div class="loader"></div>';
 
@@ -25,7 +29,7 @@ function searchApi(e) {
           date = item.first_air_date || item.release_date,
           img = item.backdrop_path === null ? 'img/no_image.png' : img_url + item.backdrop_path;
         inner += `
-          <div class="col-3">
+          <div class="col-12 col-md-6 col-xl-3">
             <div class="card mb-4">
               <img src=${img} class="card-img-top" alt=${name}>
               <div class="card-body">
@@ -35,7 +39,6 @@ function searchApi(e) {
             </div>
           </div>          
         `;
-        console.log(item.backdrop_path);
       });
 
       movies.innerHTML = inner;
