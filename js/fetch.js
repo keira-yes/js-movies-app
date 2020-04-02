@@ -8,7 +8,7 @@ function searchApi(e) {
   const searchText = document.getElementById('searchText').value,
     url = 'https://api.themoviedb.org/3/search/multi?api_key=0e66e3cd5d8c014d6e406d8aba055a88&language=ru-RU&query=' + searchText;
 
-  movies.innerText = 'Загрузка...';
+  movies.innerHTML = '<div class="loader"></div>';
 
   fetch(url)
     .then(response => {
