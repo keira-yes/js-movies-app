@@ -24,8 +24,12 @@ function searchApi(e) {
     .then(output => {
       let inner = '';
 
+      if (output.results.length === 0) {
+        inner = '<h3>По вашему запросу ничего не найдено...</h3>';
+      }
+
       output.results.forEach(item => {
-        let name = item.name || item.title,
+        const name = item.name || item.title,
           date = item.first_air_date || item.release_date,
           img = item.backdrop_path === null ? 'img/no_image.png' : img_url + item.backdrop_path;
         inner += `
