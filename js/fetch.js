@@ -2,14 +2,41 @@ const searchForm = document.getElementById('search-form'),
   movies = document.getElementById('movies'),
   img_url = 'https://image.tmdb.org/t/p/w500/';
 
+// Get video youtube
+function getVideo(type, id) {
+  let youtube = document.querySelector('.video');
+  fetch(`https://api.themoviedb.org/3/${type}/${id}/videos?api_key=0e66e3cd5d8c014d6e406d8aba055a88&language=ru-RU`)
+    .then(response => {
+      if (response.status !== 200) {
+        return Promise.reject(new Error(response.status));
+      }
+      return response.json();
+    })
+    .then(output => {
+      console.log(output);
+      let videoFrame = `<h4>Видео</h4>`;
+
+      if (output.results.length === 0) {
+        videoFrame += '<p>К сожалению, видео отсутствует.</p>'
+      }
+
+      output.results.forEach(item => {
+        videoFrame += `<iframe width="560" height="315" src="https://www.youtube.com/embed/${item.key}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      });
+      youtube.innerHTML = videoFrame;
+    })
+    .catch(reason => {
+      youtube.innerText = 'Видео отсутствует';
+      console.error('error', reason);
+    });
+}
+
 // Show full info of each item
 function showInfo() {
   let url = '';
 
-  if (this.dataset.type === 'movie') {
-    url = 'https://api.themoviedb.org/3/movie/' + this.dataset.id + '?api_key=0e66e3cd5d8c014d6e406d8aba055a88&language=ru-RU';
-  } else if (this.dataset.type === 'tv') {
-    url = 'https://api.themoviedb.org/3/tv/' + this.dataset.id + '?api_key=0e66e3cd5d8c014d6e406d8aba055a88&language=ru-RU';
+  if (this.dataset.type) {
+    url = `https://api.themoviedb.org/3/${this.dataset.type}/${this.dataset.id}?api_key=0e66e3cd5d8c014d6e406d8aba055a88&language=ru-RU`;
   } else {
     movies.innerHTML = '<h2 class="text-danger">Произошла ошибка. Повторите позже</h2>';
   }
@@ -37,8 +64,11 @@ function showInfo() {
         ${(output.last_episode_to_air) ? `<p>Вышло сезонов: ${output.number_of_seasons}, серий: ${output.number_of_episodes}</p>` : ''}
         <p>${output.overview}</p>
         <p>Жанр: ${output.genres.map(item => item.name)}</p>
-      </div>      
+        <p class="video"></p>
+      </div>   
+      <div class="col-12"></div>
       `;
+      getVideo(this.dataset.type, this.dataset.id);
     })
     .catch(reason => {
       movies.innerText = 'Что-то пошло не так...';
@@ -128,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return response.json();
     })
     .then(output => {
-      let inner = '<h2 class="text-info"></h2>';
+      let inner = '<div class="col-12 mb-5"><h2 class="text-info text-center">Популярные</h2></div>';
 
       output.results.forEach(item => {
         const name = item.name || item.title,
