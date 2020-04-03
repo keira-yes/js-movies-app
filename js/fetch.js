@@ -14,14 +14,14 @@ function getVideo(type, id) {
     })
     .then(output => {
       console.log(output);
-      let videoFrame = `<h4>Видео</h4>`;
+      let videoFrame = `<div class="col-12"><h4>Видео</h4></div>`;
 
       if (output.results.length === 0) {
-        videoFrame += '<p>К сожалению, видео отсутствует.</p>'
+        videoFrame += '<div class="col-12">К сожалению, видео отсутствует.</div>'
       }
 
       output.results.forEach(item => {
-        videoFrame += `<iframe width="560" height="315" src="https://www.youtube.com/embed/${item.key}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        videoFrame += `<div class="col-4 mb-4"><iframe width="100%" height="auto" src="https://www.youtube.com/embed/${item.key}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
       });
       youtube.innerHTML = videoFrame;
     })
@@ -52,7 +52,7 @@ function showInfo() {
       console.log(output);
       movies.innerHTML = `
       <div class="col-4">
-        <img src="${img_url}${output.poster_path}" alt="${output.name || output.title}">
+        <img src="${(output.poster_path) ? `${img_url}${output.poster_path}` : 'img/no_image.png'}" alt="${output.name || output.title}">
         ${(output.homepage) ? `<p><a href="${output.homepage}" target="_blank">Официальная страница</a></p>` : ''}
         ${(output.imdb_id) ? `<p><a href="https://imdb.com/title/${output.imdb_id}" target="_blank">Сcылка на imdb.com</a></p>` : ''}
       </div>
@@ -64,9 +64,8 @@ function showInfo() {
         ${(output.last_episode_to_air) ? `<p>Вышло сезонов: ${output.number_of_seasons}, серий: ${output.number_of_episodes}</p>` : ''}
         <p>${output.overview}</p>
         <p>Жанр: ${output.genres.map(item => item.name)}</p>
-        <p class="video"></p>
-      </div>   
-      <div class="col-12"></div>
+        <div class="row video"></div>
+      </div>
       `;
       getVideo(this.dataset.type, this.dataset.id);
     })
